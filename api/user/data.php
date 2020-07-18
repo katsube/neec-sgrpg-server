@@ -13,6 +13,7 @@
 //-------------------------------------------------
 require_once("../util.php");
 require_once("../../model/user.php");
+require_once("../../model/chara.php");
 
 //-------------------------------------------------
 // 引数を受け取る
@@ -29,28 +30,30 @@ if( !$token ){
 //-------------------------------------------------
 try{
   $user = new UserModel();
+
+  // トークンをIDに変換
   $uid  = $user->getUserIdByToken($token);
-  if( $uid !== false ){
-    $buff = $user->getRecordById($uid);
+  if( $uid === false ){
+    sendResponse(false, 'Not Found user');
+    exit(1);
   }
-  else{
-    $buff = false;
-  }
+
+  // ユーザーの基本情報を取得
+  $data = $user->getRecordById($uid);  // 基本情報
+  $mychara = $user->getChara($uid);    // 所有キャラクター
+
+  // 所有しているキャラを追加
+  $chara = new CharaModel();
+  $buff  = $chara->getCharaDetail($mychara);  // キャラ名を持ってくる
+  $data['chara'] = $buff;
 }
 catch( PDOException $e ) {
-  sendResponse(false, 'Database error: '.$e->getMessage());  // 本来エラーメッセージはサーバ内のログへ保存する(悪意のある人間にヒントを与えない)
+  sendResponse(false, 'Database error: '.$e->getMessage());
   exit(1);
 }
 
 //-------------------------------------------------
 // 実行結果を返却
 //-------------------------------------------------
-// データが0件
-if( $buff === false ){
-  sendResponse(false, 'Not Found user');
-}
-// データを正常に取得
-else{
-  sendResponse(true, $buff);
-}
+sendResponse(true, $data);
 

@@ -124,12 +124,38 @@ class UserModel extends Model{
     // 残高を減らす
     $sql  = 'UPDATE User SET money=money-:price WHERE id=:userid';
     $bind = [
-    	['name'=>':price',  'value'=>$value, 'type'=>PDO::PARAM_INT],
-    	['name'=>':userid', 'value'=>$uid,   'type'=>PDO::PARAM_INT]
+      ['name'=>':price',  'value'=>$value, 'type'=>PDO::PARAM_INT],
+      ['name'=>':userid', 'value'=>$uid,   'type'=>PDO::PARAM_INT]
      ];
 
     return( $this->query($sql, $bind) );
   }
+
+  /**
+   * 所有しているキャラクターを返却する
+   *
+   * @param integer $uid
+   * @return array
+   */
+  function getChara($uid){
+    $sql  = 'SELECT distinct chara_id FROM UserChara WHERE user_id=:userid';
+    $bind = [
+      ['name'=>':userid', 'value'=>$uid, 'type'=>PDO::PARAM_INT]
+    ];
+    // SQLを実行
+    $this->query($sql, $bind);
+
+    // 実行結果をすべて取得
+    $buff = $this->fetchAll();
+    
+    $result = [];
+    for($i=0; $i<count($buff); $i++){
+      $result[] = $buff[$i]['chara_id'];
+    }
+
+    return( $result );
+  }
+
 
   /**
    * キャラクターを所有する

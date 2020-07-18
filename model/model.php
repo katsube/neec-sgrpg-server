@@ -88,6 +88,23 @@ class Model{
   }
 
   /**
+   * すべての実行結果を取得
+   *
+   * @return array
+   */  
+  function fetchAll(){
+    $result = [];
+    while( ($buff = $this->fetch(PDO::FETCH_ASSOC)) !== false ){
+       $result[] = $buff;
+    }
+
+    return($result);
+
+    // 以下のようにPDOの機能を利用しても同じ結果になる
+    // return( $this->sth->fetchAll(PDO::FETCH_ASSOC) );
+  }
+
+  /**
    * トランザクションを開始
    */
   function begin(){
